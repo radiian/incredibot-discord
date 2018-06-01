@@ -1,0 +1,22 @@
+{
+  "name": "incredibot-discord",
+  "version": "1.0.0",
+  "description": "Incredible!!!!!!",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/radiian/incredibot-discord.git"
+  },
+  "author": "Zech",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/radiian/incredibot-discord/issues"
+  },
+  "homepage": "https://github.com/radiian/incredibot-discord#readme",
+  "dependencies": {
+    "discord.js": "^11.3.2"
+  }
+}
