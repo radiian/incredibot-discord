@@ -5,6 +5,10 @@ var connection;
 
 var isjoined = false;
 
+function playSound(var conn){
+	conn.playFile('/home/administrator/wow.mp3');
+}
+
 client.on("ready", () => {
   console.log("I am ready!");
 });
