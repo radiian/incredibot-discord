@@ -108,13 +108,13 @@ function handleCommand(message){
 			chan.join().then(connection =>{
 				conn = connection;
 				dispatcher = playSound();
-				/*dispatcher.on("end", function(){
+				dispatcher.on("end", function(){
 					setTimeout(function(){
 						if(conn != 0) conn.disconnect();
 						conn = 0;
 						dispatcher = 0;
-					}, 4000);
-				});*/
+					}, 400);
+				});
 			});
 		}
 		else {
@@ -145,9 +145,16 @@ function handleCommand(message){
 	if(message.content.startsWith("/punk ")){
 		//Set punkd = username entered
 		var arr = message.content.split(" ");
-		settings.punkd = arr[1];
-		message.channel.send("Now waiting for " + settings.punkd);
-		save();
+		if(arr[1]){
+			if(arr[1] != Secrets.founder){
+				settings.punkd = arr[1];
+				message.channel.send("Now waiting for " + settings.punkd);
+				save();
+			}
+			else {
+				message.channel.send("You cant prank the founder dumbass");
+			}
+		}
 	}
 }
 
