@@ -52,7 +52,7 @@ client.on("ready", () => {
 
 
 function handleCommand(message){
-	if(message.content.startsWith("/guild")){
+	if(message.content.startsWith("%guildeban")){
 		var arg = message.content.split(" "); 
 		//console.log(message.guild.channels);
 		var guild = message.guild;
@@ -87,14 +87,14 @@ function handleCommand(message){
 			message.channel.send("Couldnt find that channel dave");
 		}
 	}
-	if(message.content == "/leave"){
+	if(message.content == "$!leave"){
 		if(conn != 0){
 			conn.disconnect();
 			conn= 0;	
 			receiver = 0;
 		}
 	}	
-	if(message.content.startsWith("/incredible ")){
+	if(message.content.startsWith("$!incredible ") || message.content.startsWith("$!inc ")){
 		var arg = message.content.split(" ");
 		if(arg[1]){
 			//Try to join the channel named in the second argument
@@ -122,17 +122,17 @@ function handleCommand(message){
 
 		}
 	}
-	if(message.content == "/play"){
+	if(message.content == "$!play"){
 		if(conn != 0){
 			dispatcher = playSound();
 		}
 	}
-	if(message.content == "/stop"){
+	if(message.content == "$!stop"){
 		if(conn != 0 && dispatcher != 0){
 			dispatcher.end();
 		}
 	}
-	if(message.content.startsWith("/mode ")){
+	if(message.content.startsWith("$!mode ")){
 		var arr = message.content.split(" ");
 		var tmp = arr[1];
 		if(tmp > 2 || tmp < 0){
@@ -140,9 +140,10 @@ function handleCommand(message){
 			return;
 		}
 		settings.mode = tmp;
+		message.react("💦");
 		save();
 	}
-	if(message.content.startsWith("/punk ")){
+	if(message.content.startsWith("$!punk ")){
 		//Set punkd = username entered
 		var arr = message.content.split(" ");
 		if(arr[1]){
@@ -208,7 +209,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 client.on("message", (message) => {
   	console.log("working on message: " + message.content);
 	
-	if (message.content === '/join') {
+	if (message.content === '$!join') {
     // Only try to join the sender's voice channel if they are in one themselves
     	if (message.member.voiceChannel) {
   		message.member.voiceChannel.join().then(connection => {
