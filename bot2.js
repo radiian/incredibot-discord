@@ -30,7 +30,7 @@ function save(){
 
 function playSound(){
 	if(conn != 0){
-		return conn.playFile('/home/administrator/wow.mp3');
+		return conn.playFile('/home/administrator/incredible2s.mp3');
 	}
 }
 
@@ -108,13 +108,13 @@ function handleCommand(message){
 			chan.join().then(connection =>{
 				conn = connection;
 				dispatcher = playSound();
-				dispatcher.on("end", function(){
+				/*dispatcher.on("end", function(){
 					setTimeout(function(){
 						if(conn != 0) conn.disconnect();
 						conn = 0;
 						dispatcher = 0;
 					}, 4000);
-				});
+				});*/
 			});
 		}
 		else {
@@ -124,7 +124,7 @@ function handleCommand(message){
 	}
 	if(message.content == "/play"){
 		if(conn != 0){
-			if(dispatcher != 0) dispatcher = playSound();
+			dispatcher = playSound();
 		}
 	}
 	if(message.content == "/stop"){
@@ -169,6 +169,15 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 					newMember.voiceChannel.join().then(connection => {
 						conn = connection;
 						dispatcher = playSound();
+						dispatcher.on("end", function(){
+							setTimeout(function(){
+                                                		if(conn != 0) conn.disconnect();
+                                                		conn = 0;
+                                                		dispatcher = 0;
+                                        		}, 400);
+
+
+						});
 					});
 				
 				}
