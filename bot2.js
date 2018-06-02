@@ -1,16 +1,32 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const Secrets = require("./supersecrets.js");
+const fs = require('fs');
+
+var settings = {
+	punkd: "somerandomassusername",
+	mode: "0"
+};
 var conn= 0;
 var dispatcher = 0;
 var receiver = 0;
 var isjoined = false;
 
-var mode = 0; 	//0 do nothing, lay dormant
+//var mode = 0; 	//0 do nothing, lay dormant
 		//1 play the sound when the user joins
 		//2 play the sound when the user speaks
 
-var punkd = "somerandomassusername";
+//var punkd = "somerandomassusername";
+
+
+function save(){
+	fs.writeFile("./settings.json", JSON.stringify(settings), 'utf8', function (err){
+	if(err){
+		return console.log(err);
+	}
+	console.log("Settings were saved");
+	});
+}
 
 function playSound(){
 	if(conn != 0){
@@ -19,7 +35,19 @@ function playSound(){
 }
 
 client.on("ready", () => {
-  console.log("I am ready!");
+	//load the settings here
+	if(fs.existsSync("./settings.json")){	
+		var tmpset = JSON.parse(fs.readFileSync('./settings.json', 'utf8'));
+		if(!tmpset) console.log("No settings file, using default");
+		else {
+			settings = tmpset;
+		}
+	}
+	else {
+		console.log("no settings file, saving the default");
+		save();
+	}
+  	console.log("I am ready!");
 });
 
 
@@ -45,9 +73,9 @@ function handleCommand(message){
                         receiver = conn.createReceiver();
                         
 				conn.on('speaking', (user, speaking)=>{
-                                if(mode == 2){
+                                if(settings.mode == 2){
                                         if(speaking){
-                                                if(user.username == punkd){
+                                                if(user.username == settings.punkd){
                                                         dispatcher = playSound();
                                                 }
                                         }
@@ -111,13 +139,15 @@ function handleCommand(message){
 			message.channel.send("invalid mode");
 			return;
 		}
-		mode = tmp;
+		settings.mode = tmp;
+		save();
 	}
 	if(message.content.startsWith("/punk ")){
 		//Set punkd = username entered
 		var arr = message.content.split(" ");
-		punkd = arr[1];
-		message.channel.send("Updated punkd to " + punkd);
+		settings.punkd = arr[1];
+		message.channel.send("Now waiting for " + settings.punkd);
+		save();
 	}
 }
 
@@ -128,9 +158,27 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 	 if(oldUserChannel === undefined && newUserChannel !== undefined) {
 		//joined channel
 		console.log("Someone has joined");
-		if(mode == 1){
-			if(newMember.user.username == punkd)dispatcher = playSound();
-			else console.log("It wasn't " + punkd +", so lets keep quiet");
+		//currently if in mode 1 if the user joins it joins the channel to 
+		//play the sound. It does not check to see if the user changes channels
+		//which needs to be added.
+		if(settings.mode == 1){
+			if(newMember.user.username == settings.punkd){
+				console.log("User joined! Lets do this!");
+				if(!conn){
+					console.log("Joining their channel");
+					newMember.voiceChannel.join().then(connection => {
+						conn = connection;
+						dispatcher = playSound();
+					});
+				
+				}
+				else {
+					console.log("Playing the sound");
+					dispatcher = playSound();
+				}
+				
+			}
+			else console.log("It wasn't " + settings.punkd +", so lets keep quiet");
 		}
   	} else if(newUserChannel === undefined){
 		//left channel
@@ -151,9 +199,9 @@ client.on("message", (message) => {
 			conn = connection;
 			receiver = conn.createReceiver();
 			conn.on('speaking', (user, speaking)=>{
-				if(mode == 2){
+				if(settings.mode == 2){
 					if(speaking){
-						if(user.username == punkd){
+						if(user.username == settings.punkd){
 							dispatcher = playSound();
 						}
 					}
