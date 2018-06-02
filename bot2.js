@@ -43,7 +43,8 @@ function handleCommand(message){
 			chan.join().then(connection => {
        	                conn = connection;
                         receiver = conn.createReceiver();
-                        conn.on('speaking', (user, speaking)=>{
+                        
+				conn.on('speaking', (user, speaking)=>{
                                 if(mode == 2){
                                         if(speaking){
                                                 if(user.username == punkd){
@@ -65,9 +66,37 @@ function handleCommand(message){
 			receiver = 0;
 		}
 	}	
+	if(message.content.startsWith("/incredible ")){
+		var arg = message.content.split(" ");
+		if(arg[1]){
+			//Try to join the channel named in the second argument
+			var guild = message.guild;
+                	var voiceChans = guild.channels.filter(c =>c.type == "voice");
+			var chan = voiceChans.find("name", arg[1]);
+			if(conn){
+				message.channel.send("I'm arleady in a channel you twat");
+				return;
+			}
+			chan.join().then(connection =>{
+				conn = connection;
+				dispatcher = playSound();
+				dispatcher.on("end", function(){
+					setTimeout(function(){
+						if(conn != 0) conn.disconnect();
+						conn = 0;
+						dispatcher = 0;
+					}, 4000);
+				});
+			});
+		}
+		else {
+			//else join the caller's channel
+
+		}
+	}
 	if(message.content == "/play"){
 		if(conn != 0){
-			dispatcher = playSound();
+			if(dispatcher != 0) dispatcher = playSound();
 		}
 	}
 	if(message.content == "/stop"){
