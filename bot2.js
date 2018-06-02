@@ -8,7 +8,7 @@ var isjoined = false;
 
 var mode = 0; 	//0 do nothing, lay dormant
 		//1 play the sound when the user joins
-		//3 play the sound when the user speaks
+		//2 play the sound when the user speaks
 
 var punkd = "somerandomassusername";
 
@@ -24,23 +24,61 @@ client.on("ready", () => {
 
 
 function handleCommand(message){
+	if(message.content.startsWith("/guild")){
+		var arg = message.content.split(" "); 
+		//console.log(message.guild.channels);
+		var guild = message.guild;
+		//var chan = guild.channels.find("name", "test");
+		var voiceChans = guild.channels.filter(c =>c.type == "voice");
+		if(!arg[1]){
+			message.channel.send("No channel???!!!");
+			return;
+		}
+		
+		var chan = voiceChans.find("name", arg[1]);
+		console.log("Guild: " + guild);
+		console.log("Chan: ");
+		console.log(voiceChans);
+		if(chan){
+			chan.join().then(connection => {
+       	                conn = connection;
+                        receiver = conn.createReceiver();
+                        conn.on('speaking', (user, speaking)=>{
+                                if(mode == 2){
+                                        if(speaking){
+                                                if(user.username == punkd){
+                                                        dispatcher = playSound();
+                                                }
+                                        }
+                                }
+                        });
+                });	
+		}
+		else {
+			message.channel.send("Couldnt find that channel dave");
+		}
+	}
 	if(message.content == "/leave"){
-		conn.disconnect();
-		conn= 0;	
-		receiver = 0;
+		if(conn != 0){
+			conn.disconnect();
+			conn= 0;	
+			receiver = 0;
+		}
 	}	
 	if(message.content == "/play"){
-		dispatcher = playSound();
+		if(conn != 0){
+			dispatcher = playSound();
+		}
 	}
 	if(message.content == "/stop"){
-		if(dispatcher != 0){
+		if(conn != 0 && dispatcher != 0){
 			dispatcher.end();
 		}
 	}
 	if(message.content.startsWith("/mode ")){
 		var arr = message.content.split(" ");
 		var tmp = arr[1];
-		if(tmp > 3 || tmp < 0){
+		if(tmp > 2 || tmp < 0){
 			message.channel.send("invalid mode");
 			return;
 		}
@@ -61,7 +99,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 	 if(oldUserChannel === undefined && newUserChannel !== undefined) {
 		//joined channel
 		console.log("Someone has joined");
-		if(mode == 2){
+		if(mode == 1){
 			if(newMember.user.username == punkd)dispatcher = playSound();
 			else console.log("It wasn't " + punkd +", so lets keep quiet");
 		}
@@ -84,7 +122,7 @@ client.on("message", (message) => {
 			conn = connection;
 			receiver = conn.createReceiver();
 			conn.on('speaking', (user, speaking)=>{
-				if(mode == 3){
+				if(mode == 2){
 					if(speaking){
 						if(user.username == punkd){
 							dispatcher = playSound();
@@ -98,9 +136,10 @@ client.on("message", (message) => {
       		message.reply('You need to join a voice channel first!');
     	}
 	}
-	if(conn !== 0){
+	else {
 		handleCommand(message);
 	}
+	
 	
 });
 
