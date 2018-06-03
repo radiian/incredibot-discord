@@ -205,6 +205,14 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 				else {
 					console.log("Playing the sound");
 					dispatcher = playSound();
+					//Don't need the bot to leave here since it was already in the chat
+					/*dispatcher.on("end", function(){
+						setTimeout(function(){
+                                                	if(conn != 0) conn.disconnect();
+                                                	conn = 0;
+                                                	dispatcher = 0;
+                                                }, 400);
+             				});*/
 				}
 				
 			}
@@ -222,6 +230,8 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 client.on("message", (message) => {
   	console.log("working on message: " + message.content);
 	
+
+	//I think all of this can be moved into the handleCommand() function
 	if (message.content === '$!join') {
     // Only try to join the sender's voice channel if they are in one themselves
     	if (message.member.voiceChannel) {
