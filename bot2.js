@@ -120,7 +120,8 @@ function handleCommand(message){
 				message.channel.send("I'm arleady in a channel you twat");
 				return;
 			}
-			chan.join().then(connection =>{
+			//This is really important because without it we crash
+			if(chan)chan.join().then(connection =>{
 				conn = connection;
 				dispatcher = playSound();
 				dispatcher.on("end", function(){
@@ -131,6 +132,7 @@ function handleCommand(message){
 					}, 400);
 				});
 			});
+			else message.channel.send("Y u no in voice channel????");
 		}
 		else {
 			//else join the caller's channel
