@@ -5,12 +5,14 @@ const fs = require('fs');
 
 var settings = {
 	punkd: "somerandomassusername",
-	mode: "0"
+	mode: "0",
+	guild: "0"
 };
 var conn= 0;
 var dispatcher = 0;
 var receiver = 0;
 var isjoined = false;
+var guild = 0;
 
 //var mode = 0; 	//0 do nothing, lay dormant
 		//1 play the sound when the user joins
@@ -30,6 +32,12 @@ function save(){
 
 function playSound(){
 	if(conn != 0){
+		//eventually want to change the nickname once the bot does its thing
+		//not as easy as it seems though
+		/*if(settings.guild){
+			var me = guild.members.get(Secrets.botid);
+			me.setNickname("Testy faggot").catch(console.error);
+		}*/
 		return conn.playFile('/home/administrator/incredible2s.mp3');
 	}
 }
@@ -52,6 +60,11 @@ client.on("ready", () => {
 
 
 function handleCommand(message){
+	if(message.content == "$!guildme"){
+		settings.guild = message.guild;
+		message.react("👁");
+		save();
+	}
 	if(message.content.startsWith("%guildeban")){
 		var arg = message.content.split(" "); 
 		//console.log(message.guild.channels);
