@@ -60,12 +60,14 @@ client.on("ready", () => {
 
 
 function handleCommand(message){
+	if(!message.content.startsWith("$!")) return;	//If it's not a command then fuck off
+	else console.log("Working on command: " + message);
 	if(message.content == "$!guildme"){
 		settings.guild = message.guild;
 		message.react("👁");
 		save();
 	}
-	if(message.content.startsWith("%guildeban")){
+	if(message.content.startsWith("%guildeban")){	//Need to fix the first line of this function because it ignores this command
 		var arg = message.content.split(" "); 
 		//console.log(message.guild.channels);
 		var guild = message.guild;
@@ -228,7 +230,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 });
 
 client.on("message", (message) => {
-  	console.log("working on message: " + message.content);
+  	//console.log("working on message: " + message.content);
 	
 
 	//I think all of this can be moved into the handleCommand() function
