@@ -187,7 +187,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 		//play the sound. It does not check to see if the user changes channels
 		//which needs to be added.
 		if(settings.mode == 1){
-			if(newMember.user.username == settings.punkd){
+			if(newMember.user.username.toLower() == settings.punkd.toLower()){
 				console.log("User joined! Lets do this!");
 				if(!conn){
 					console.log("Joining their channel");
