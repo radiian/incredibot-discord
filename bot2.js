@@ -6,20 +6,42 @@ const fs = require('fs');
 var settings = {
 	punkd: "somerandomassusername",
 	mode: "0",
-	guild: "0"
+	guildid: "0",
+	guild: "0",
+	nick: "BotBoiJenkins"
 };
 var conn= 0;
 var dispatcher = 0;
 var receiver = 0;
 var isjoined = false;
 var guild = 0;
+var newNicks = [
+	"Testy faggot",
+	"Brandon's Tiny Dick",
+	"LitBot",
+	"Memey Boi",
+	"Meme Review",
+	"✊🍆💦",
+	"Incredibot",
+	"Zech is gay" ];
 
 //var mode = 0; 	//0 do nothing, lay dormant
 		//1 play the sound when the user joins
 		//2 play the sound when the user speaks
 
 //var punkd = "somerandomassusername";
-
+function randomName(oldNick){
+	var index = Math.floor(Math.random() * newNicks.length); 
+	var newNick = newNicks[index];
+	while(newNick == oldNick){
+		index = Math.floor(Math.random() * newNicks.length);
+		newNick = newNicks[index];
+	}
+	console.log("New random name: " + newNick);
+	//settings.nick = newNick;
+	//save();
+	return newNick;
+}
 
 function save(){
 	fs.writeFile("./settings.json", JSON.stringify(settings), 'utf8', function (err){
@@ -42,6 +64,28 @@ function playSound(){
 	}
 }
 
+function changeNick(newNick){
+	if(settings.guild){
+		console.log(settings.guild);
+		console.log(settings.guild.members);
+		var members = settings.guild.fetchMembers();
+		var me = settings.guild.members.get(Secrets.botid);
+		me.setNickname(newNick).then(
+			//console.log("did it work???")
+		)
+		.catch(console.error);
+		settings.nick = newNick;
+		save();
+	}
+}
+
+function discon(){
+	if(conn != 0) conn.disconnect();
+	conn = 0;
+	dispatcher = 0;
+	changeNick(randomName(settings.nick));
+}
+
 client.on("ready", () => {
 	//load the settings here
 	if(fs.existsSync("./settings.json")){	
@@ -55,6 +99,14 @@ client.on("ready", () => {
 		console.log("no settings file, saving the default");
 		save();
 	}
+
+	if(settings.guildid != "0"){
+		var guildFind = client.guilds.get(settings.guildid);
+		if(!guildFind){
+			console.log("Couldn't find that guild dave");
+		}
+		else settings.guild = guildFind;
+	}
   	console.log("I am ready!");
 });
 
@@ -62,7 +114,31 @@ client.on("ready", () => {
 function handleCommand(message){
 	if(!message.content.startsWith("$!")) return;	//If it's not a command then fuck off
 	else console.log("Working on command: " + message);
+	if(message.content == "$!dbg"){
+		console.log(settings);
+
+	}
+
+	if(message.content == "$!who"){
+		changeNick("incredibot");	
+	}
+	if(message.content == "$!name"){
+		var oldNick = settings.nick;
+		settings.nick = randomName(oldNick);
+	}
 	if(message.content == "$!guildme"){
+		//We only want to save the guild ID, not the whole guild
+		//This is because of the way guilds are put into JSON
+		//They cannot be stringified and have all the data saved
+		//so instead we will only save the guild ID, and then fetch the guild by id at start
+		/*console.log("Applying guild");
+		console.log(message.guild);
+		console.log("\r\n\r\nSettings.Guild:");
+		settings.guild = message.guild;
+		console.log(settings.guild);*/
+		console.log("Saving guild id: ");
+		console.log(message.guild.id);
+		settings.guildid = message.guild.id;
 		settings.guild = message.guild;
 		message.react("👁");
 		save();
@@ -71,6 +147,7 @@ function handleCommand(message){
 		var arg = message.content.split(" "); 
 		//console.log(message.guild.channels);
 		var guild = message.guild;
+		//settings.guild = message.guild;
 		//var chan = guild.channels.find("name", "test");
 		var voiceChans = guild.channels.filter(c =>c.type == "voice");
 		if(!arg[1]){
@@ -124,13 +201,14 @@ function handleCommand(message){
 			if(chan)chan.join().then(connection =>{
 				conn = connection;
 				dispatcher = playSound();
-				dispatcher.on("end", function(){
+				dispatcher.on("end",discon); 
+					/*function(){
 					setTimeout(function(){
 						if(conn != 0) conn.disconnect();
 						conn = 0;
 						dispatcher = 0;
 					}, 400);
-				});
+				});*/
 			});
 			else message.channel.send("Y u no in voice channel????");
 		}
@@ -187,14 +265,15 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 		//play the sound. It does not check to see if the user changes channels
 		//which needs to be added.
 		if(settings.mode == 1){
-			if(newMember.user.username.toLower() == settings.punkd.toLower()){
+			if(newMember.user.username.toLowerCase() == settings.punkd.toLowerCase()){
 				console.log("User joined! Lets do this!");
 				if(!conn){
 					console.log("Joining their channel");
 					newMember.voiceChannel.join().then(connection => {
 						conn = connection;
 						dispatcher = playSound();
-						dispatcher.on("end", function(){
+						dispatcher.on("end",discon); 
+							/*function(){
 							setTimeout(function(){
                                                 		if(conn != 0) conn.disconnect();
                                                 		conn = 0;
@@ -202,7 +281,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
                                         		}, 400);
 
 
-						});
+						});*/
 					});
 				
 				}
