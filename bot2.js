@@ -10,6 +10,7 @@ var settings = {
 	guild: "0",
 	nick: "BotBoiJenkins"
 };
+
 var conn= 0;
 var dispatcher = 0;
 var receiver = 0;
@@ -23,7 +24,11 @@ var newNicks = [
 	"Meme Review",
 	"✊🍆💦",
 	"Incredibot",
-	"Zech is gay" ];
+	"Zech is gay",
+	"wow",
+	"Pewds",
+	"Halo sucks",
+	"bigus dickus" ];
 
 //var mode = 0; 	//0 do nothing, lay dormant
 		//1 play the sound when the user joins
@@ -113,7 +118,7 @@ client.on("ready", () => {
 
 function handleCommand(message){
 	if(!message.content.startsWith("$!")) return;	//If it's not a command then fuck off
-	else console.log("Working on command: " + message);
+	//else console.log("Working on command: " + message);
 	if(message.content == "$!dbg"){
 		console.log(settings);
 
@@ -143,42 +148,7 @@ function handleCommand(message){
 		message.react("👁");
 		save();
 	}
-	if(message.content.startsWith("%guildeban")){	//Need to fix the first line of this function because it ignores this command
-		var arg = message.content.split(" "); 
-		//console.log(message.guild.channels);
-		var guild = message.guild;
-		//settings.guild = message.guild;
-		//var chan = guild.channels.find("name", "test");
-		var voiceChans = guild.channels.filter(c =>c.type == "voice");
-		if(!arg[1]){
-			message.channel.send("No channel???!!!");
-			return;
-		}
-		
-		var chan = voiceChans.find("name", arg[1]);
-		console.log("Guild: " + guild);
-		console.log("Chan: ");
-		console.log(voiceChans);
-		if(chan){
-			chan.join().then(connection => {
-       	                conn = connection;
-                        receiver = conn.createReceiver();
-                        
-				conn.on('speaking', (user, speaking)=>{
-                                if(settings.mode == 2){
-                                        if(speaking){
-                                                if(user.username == settings.punkd){
-                                                        dispatcher = playSound();
-                                                }
-                                        }
-                                }
-                        });
-                });	
-		}
-		else {
-			message.channel.send("Couldnt find that channel dave");
-		}
-	}
+	
 	if(message.content == "$!leave"){
 		if(conn != 0){
 			conn.disconnect();
@@ -186,6 +156,7 @@ function handleCommand(message){
 			receiver = 0;
 		}
 	}	
+	
 	if(message.content.startsWith("$!incredible ") || message.content.startsWith("$!inc ")){
 		var arg = message.content.split(" ");
 		if(arg[1]){
@@ -202,13 +173,6 @@ function handleCommand(message){
 				conn = connection;
 				dispatcher = playSound();
 				dispatcher.on("end",discon); 
-					/*function(){
-					setTimeout(function(){
-						if(conn != 0) conn.disconnect();
-						conn = 0;
-						dispatcher = 0;
-					}, 400);
-				});*/
 			});
 			else message.channel.send("Y u no in voice channel????");
 		}
@@ -217,6 +181,7 @@ function handleCommand(message){
 
 		}
 	}
+	
 	if(message.content == "$!play"){
 		if(conn != 0){
 			dispatcher = playSound();
@@ -260,7 +225,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 
 	 if(oldUserChannel === undefined && newUserChannel !== undefined) {
 		//joined channel
-		console.log("Someone has joined");
+		//console.log("Someone has joined");
 		//currently if in mode 1 if the user joins it joins the channel to 
 		//play the sound. It does not check to see if the user changes channels
 		//which needs to be added.
@@ -273,29 +238,14 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 						conn = connection;
 						dispatcher = playSound();
 						dispatcher.on("end",discon); 
-							/*function(){
-							setTimeout(function(){
-                                                		if(conn != 0) conn.disconnect();
-                                                		conn = 0;
-                                                		dispatcher = 0;
-                                        		}, 400);
 
 
-						});*/
 					});
 				
 				}
 				else {
-					console.log("Playing the sound");
+					//console.log("Playing the sound");
 					dispatcher = playSound();
-					//Don't need the bot to leave here since it was already in the chat
-					/*dispatcher.on("end", function(){
-						setTimeout(function(){
-                                                	if(conn != 0) conn.disconnect();
-                                                	conn = 0;
-                                                	dispatcher = 0;
-                                                }, 400);
-             				});*/
 				}
 				
 			}
@@ -303,7 +253,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 		}
   	} else if(newUserChannel === undefined){
 		//left channel
-		console.log("Someone has left");
+		//console.log("Someone has left");
 	}
 
 
