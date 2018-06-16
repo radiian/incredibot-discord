@@ -77,12 +77,16 @@ function changeNick(newNick){
 		try{
 			var members = settings.guild.fetchMembers();
 			var me = settings.guild.members.get(Secrets.botid);
-			me.setNickname(newNick).then(
+			me.setNickname(newNick).then(function(){
 			//console.log("did it work???")
-			)
-			.catch(function() {console.log("Chang nickname is fucked up"); console.log(console.error);});
-			settings.nick = newNick;
-			save();
+				settings.nick = newNick;
+				save();
+			})
+			.catch(function() { 
+				logError(console.error);
+				console.log("Chang nickname is fucked up"); 
+				console.log(console.error);
+			});
 		}
 		catch{
 			console.log("Changing nick names is fucking up");
