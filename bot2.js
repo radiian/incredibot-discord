@@ -48,6 +48,7 @@ function randomName(oldNick){
 	return newNick;
 }
 
+
 function save(){
 	fs.writeFile("./settings.json", JSON.stringify(settings), 'utf8', function (err){
 	if(err){
@@ -71,16 +72,21 @@ function playSound(){
 
 function changeNick(newNick){
 	if(settings.guild){
-		console.log(settings.guild);
-		console.log(settings.guild.members);
-		var members = settings.guild.fetchMembers();
-		var me = settings.guild.members.get(Secrets.botid);
-		me.setNickname(newNick).then(
+		//console.log(settings.guild);
+		//console.log(settings.guild.members);
+		try{
+			var members = settings.guild.fetchMembers();
+			var me = settings.guild.members.get(Secrets.botid);
+			me.setNickname(newNick).then(
 			//console.log("did it work???")
-		)
-		.catch(console.error);
-		settings.nick = newNick;
-		save();
+			)
+			.catch(function() {console.log("Chang nickname is fucked up"); console.log(console.error);});
+			settings.nick = newNick;
+			save();
+		}
+		catch{
+			console.log("Changing nick names is fucking up");
+		}
 	}
 }
 
@@ -90,6 +96,32 @@ function discon(){
 	dispatcher = 0;
 	changeNick(randomName(settings.nick));
 }
+
+function logError(errorMessage){
+	var now = new Date();
+	var year = now.getFullYear();
+	var month = now.getMonth();
+	var day = now.getDate();
+	
+	var hour = now.getHours();
+	var minute = now.getMinutes();
+
+	var filename = "errorlog-"+year+month+day+".log";
+	var line = hour + ":" + minute + "; " + errorMessage + "\r\n";
+
+	//if(!fs.existsSync("./"+filename)){
+		//create the log file
+	//}
+	
+	fs.appendFile(filename, line, function(err){
+		if(err){
+			console.log("We tried to log an error but it gave an error!");
+			console.log(console.error);
+		}
+	});	
+	//open the file
+}
+
 
 client.on("ready", () => {
 	//load the settings here
@@ -101,6 +133,7 @@ client.on("ready", () => {
 		}
 	}
 	else {
+		logError("No settings file was found, setting up the default file");
 		console.log("no settings file, saving the default");
 		save();
 	}
@@ -108,6 +141,7 @@ client.on("ready", () => {
 	if(settings.guildid != "0"){
 		var guildFind = client.guilds.get(settings.guildid);
 		if(!guildFind){
+			logError("The saved guild does not exist in the client guild list");
 			console.log("Couldn't find that guild dave");
 		}
 		else settings.guild = guildFind;
@@ -123,7 +157,14 @@ function handleCommand(message){
 		console.log(settings);
 
 	}
-
+	if(message.content.startsWith("$!log ")){
+		 var arg = message.content.split(" ");
+		var msg = "";
+		for(var i = 0; i < arg.length - 1; ++i){
+			msg += arg[i+1] + " ";
+		}
+		logError(msg);
+	}
 	if(message.content == "$!who"){
 		changeNick("incredibot");	
 	}
@@ -237,7 +278,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 					newMember.voiceChannel.join().then(connection => {
 						conn = connection;
 						dispatcher = playSound();
-						dispatcher.on("end",discon); 
+						dispatcher.on("end",discon);
 
 
 					});
@@ -274,7 +315,7 @@ client.on("message", (message) => {
 			conn.on('speaking', (user, speaking)=>{
 				if(settings.mode == 2){
 					if(speaking){
-						if(user.username == settings.punkd){
+						if(user.username.toLower() == settings.punkd.toLower()){
 							dispatcher = playSound();
 						}
 					}
